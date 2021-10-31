@@ -3,43 +3,43 @@
     <div class="login-wrap">
       <el-row type="flex" justify="center">
 
-        <el-form ref="loginForm" :model="user" status-icon label-width="80px">
-
-         <el-button  type="text" @click="isPhone=!isPhone">切换收取验证码方式</el-button>  
-
+        <el-form ref="registerForm" :model="user" status-icon label-width="80px">
+            <h3>注册账户</h3>
           <hr>
-          <span v-if="isPhone">
-
+      
+           <el-tabs v-model="activeName" @tab-click="handleClick">
+          <el-tab-pane label="手机验证" name="first">
+          
            <el-form-item prop="phone" label="手机">
             <el-input v-model="user.phone" placeholder="请输入手机号"></el-input>
             <el-row>
-            <el-button round @click="sendPhoneVerifycode()">发送手机验证码</el-button>
+            <el-button round @click="sendPhoneVerifycode()" :disabled="isDisabled">{{buttonName}}</el-button>
             </el-row>
           </el-form-item>
            <el-form-item prop="code" label="验证码">
             <el-input v-model="user.code" placeholder="请输入手机验证码"></el-input>
           </el-form-item>
   
-          </span>
+    </el-tab-pane>
 
-          <span v-else>
-
-            <el-form-item prop="email" label="邮箱">
+          <el-tab-pane label="邮箱验证" name="second">
+ 
+         <el-form-item prop="email" label="邮箱">
             <el-input v-model="user.email" placeholder="请输入任意邮箱"></el-input>
             <el-row>
-            <el-button round @click="sendEmailVerifycode()">发送邮箱验证码</el-button>
+            <el-button round @click="sendEmailVerifycode()" :disabled="isDisabled">{{buttonName}}</el-button>
             </el-row>
           </el-form-item>
            <el-form-item prop="code" label="验证码">
             <el-input v-model="user.code" placeholder="请输入邮箱验证码"></el-input>
           </el-form-item>
+         </el-tab-pane>
+           </el-tabs>
 
-          </span>
-          
            <el-steps :active="active" finish-status="success">
-           <el-step title="步骤 1"></el-step>
-           <el-step title="步骤 2"></el-step>
-            <el-step title="步骤 3"></el-step>
+           <el-step title="步骤 1"  description="身份绑定"></el-step>
+           <el-step title="步骤 2"  description="信息填写"></el-step>
+            <el-step title="步骤 3"  description="尝试登录"></el-step>
            </el-steps>
           
           
@@ -48,6 +48,22 @@
 
         </el-form>
       </el-row>
+
+      <el-dialog :visible.sync="outerVisible">
+      <slide-verify
+        ref="slideblock"
+        @again="onAgain"
+        @fulfilled="onFulfilled"
+        @success="onSuccess"
+        @fail="onFail"
+        @refresh="onRefresh"
+        :slider-text="text"
+        :accuracy="accuracy"
+      ></slide-verify>
+      <el-button type="primary" @click="handleClick" size="medium">刷新</el-button>
+    </el-dialog>
+
+
     </div>
   </div>
 </template>
@@ -58,7 +74,19 @@ export default {
   name: "Registercode",
   data() {
     return {
-      isPhone: true,
+     
+     msg: '',
+      text: '向右滑动->',
+      outerVisible: false,
+      // 精确度小，可允许的误差范围小；为1时，则表示滑块要与凹槽完全重叠，才能验证成功。默认值为5
+      accuracy: 5,
+      isEmail: false,
+      isPhone :false,
+
+      activeName: 'first',
+      time: 30,
+      buttonName: "获取验证码",
+      isDisabled: false, //验证码再次发送
       user: {
         newpassword: "",
         email: "",
@@ -75,47 +103,72 @@ export default {
   },
   methods: {
    
-    sendEmailVerifycode() {
-       
-      if(!this.user.email||this.user.email=="") {
-       this.$methods.error("请输入邮箱账户! ");
+     timer() {
+                if (this.time > 0) {
+                    this.isDisabled=true;
+                     this.time--;
+                     this.buttonName=this.time+"秒后可用";
+                     setTimeout(this.timer, 1000);
+                } else{
+                     this.time=0;
+                     this.buttonName="发送验证码";
+                     this.isDisabled=false;
+                }
+            },
+
+  sendEmailVerifycode() {
+
+      if(!this.user.email) {
+       this.$message.error("请输入邮箱账户! ");
         return ;
       }
-      else {
-        axios.post("http://127.0.0.1:8088/password/verified/",{
-            email: this.user.email
-        })
-          .then(res=>{
-             alert("验证码已发送至您的邮箱！");
-          })
-      }
-    },
+      else if (this.user.email != null) {
+        var reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+        if (!reg.test(this.user.email)) {
+          this.$message.error("请检查邮箱填写是否正确！");
+        } }
+         this.outerVisible = true // 弹出 滑动框
+        this.isEmail = true
+      },
+
    sendPhoneVerifycode() {
+          
        if(!this.user.phone||this.user.phone=="") {
-       this.$methods.error("请输入手机号! ");
+       this.$message.error("请输入手机号! ");
         return ;
       }
       else {
-        axios.post("http://127.0.0.1:8088/login/sendMs/",{
-            phone: this.user.phone
-        })
-          .then(res=>{
-             alert("验证码已发送至您的手机！");
-          })
+        this.isPhone = true
+        this.outerVisible = true // 弹出 滑动框
+
+       
       }
    },
 
    Verifycode() {
+
         const _this = this
       if(!this.user.code||this.user.code=="") {
-        Vue.prototype.$methods.error("请输入验证码! ");
+        this.$message.error("请输入验证码!")
         return ;
       }
+
       else {
-        axios.get("http://127.0.0.1:8088/password/verifiedcode")
+        axios.post("http://127.0.0.1:8088/password/verifiedcode",{
+          email: this.user.email,
+          code: this.user.code
+        })
           .then(res=>{
-            if(this.user.code==res.data.data) {
-                 if (this.active++ > 2) this.active = 0;
+         if(res.data.status==10010) { // 验证码过期
+              this.$message.error("验证码过期了,请重新获取！")
+              return ;
+            }
+            if(res.data.status==10011) {  // 验证码错误
+              this.$message.error("输入验证码错误！")
+              return ;
+            }
+           if(res.data.status==10000) { // 验证码 相等
+              if (this.active++ > 2) this.active = 0;
 
                      _this.$router.push({ 
                        path:'/register',
@@ -125,18 +178,87 @@ export default {
                       email:_this.user.email,
                       phone:_this.user.phone
                      }})
-
                     this.$router.push({ path: "/register"});
             }
-            else {
-                alert("验证码错误!")
-                 Vue.prototype.$methods.error("验证码错误! ");
-            }
+           
           })
       }
       
+
     },
    
+    onSuccess() {
+
+
+        const _this = this
+        if(_this.isEmail==true) {
+        _this.isEmail = false
+        this.time=30;
+        this.timer();
+        axios.post("http://127.0.0.1:8088/password/verified/",{
+            email: this.user.email
+        })
+          .then(res=>{
+            if(res.data.status==10000) {
+             this.$message({
+          message: '验证码已经发送至您的邮箱',
+          type: 'success'
+        });
+          }else {
+               this.$message.error("系统繁忙请重试")
+             }
+
+          })
+        }
+        
+        if(_this.isPhone==true) {
+          _this.isPhone = false
+          this.time=30;
+          this.timer();
+        axios.post("http://127.0.0.1:8088/login/sendMs/",{
+            phone: this.user.phone
+        })
+          .then(res=>{
+             this.$message({
+          message: '验证码已发送至您的手机！',
+          type: 'success'
+          });
+            
+
+          })
+        }  
+
+      console.log('验证通过')
+      this.msg = 'login success'
+      //滑动验证成功之后关闭弹出的窗口
+      this.outerVisible = false
+      this.$refs.slideblock.reset()
+
+       // 发送邮箱
+
+     
+      
+    },
+    onFail() {
+      console.log('验证不通过')
+      this.msg = ''
+    },
+    onRefresh() {
+      console.log('点击了刷新小图标')
+      this.msg = ''
+    },
+    onFulfilled() {
+      console.log('刷新成功啦！')
+    },
+    onAgain() {
+      console.log('检测到非人为操作的哦！')
+      this.msg = 'try again'
+      // 刷新
+      this.$refs.slideblock.reset()
+    },
+    handleClick() {
+      this.$refs.slideblock.reset()
+    },
    
 
      
@@ -157,7 +279,7 @@ export default {
   background: url("../assets/3.jpg") no-repeat;
   background-size: cover;
   width: 500px;
-  height: 400px;
+  height: 500px;
   margin: 100px auto;
   overflow: hidden;
   padding-top: 10px;

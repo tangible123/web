@@ -11,21 +11,35 @@
             <el-input v-model="user.userNum" placeholder="请输入学号" prefix-icon></el-input>
           </el-form-item>
 
-
+          <span v-if="judge">
           <el-form-item id="password" prop="password" label="新的密码">
             <el-input v-model="user.password" show-password placeholder="请输入密码"></el-input>
           </el-form-item>
-
+          </span>
+           <span v-else>
+             <el-form-item id="password" prop="password" label="密码">
+            <el-input v-model="user.password" show-password placeholder="请输入密码"></el-input>
+          </el-form-item>
+           </span>
 
           <el-form-item>
             <el-button type="primary" icon="el-icon-upload" @click="doLogin()">登 录</el-button>
           </el-form-item>
-
+           
+           <span v-if="judge">
            <el-steps :active="active" finish-status="success">
-           <el-step title="步骤 1"></el-step>
-           <el-step title="步骤 2"></el-step>
-           <el-step title="步骤 3"></el-step>
+           <el-step title="步骤 1"  description="身份验证"></el-step>
+           <el-step title="步骤 2" description="重置密码"></el-step>
+            <el-step title="步骤 3" description="尝试登录"></el-step>
            </el-steps>
+           </span>
+           <span v-else>
+             <el-steps :active="active" finish-status="success">
+           <el-step title="步骤 1"  description="身份绑定"></el-step>
+           <el-step title="步骤 2"  description="信息填写"></el-step>
+            <el-step title="步骤 3"  description="尝试登录"></el-step>
+           </el-steps>
+           </span>
 
 
         </el-form>
@@ -40,6 +54,7 @@ export default {
   name: "login",
   data() {
     return {
+      judge: this.$route.params.judge,
       user: {
         userNum: "",
         password: ""

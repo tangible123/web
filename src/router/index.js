@@ -5,9 +5,9 @@ import Resetpassword from '../views/Resetpassword.vue'
 import login from '../views/login.vue'
 import Register from '../views/Register.vue'
 import Email from '../views/Email.vue'
-import TestLogin from '../views/TestLogin.vue'
 import Registercode from '../views/Registercode.vue'
-
+import test from '../views/test.vue'
+import TestLogin from '../views/TestLogin.vue'
 
 Vue.use(VueRouter)
 
@@ -32,11 +32,6 @@ const routes = [
     component: Registercode
   },
   {
-    path: '/testlogin',
-    name: 'testlogin',
-    component: TestLogin
-  },
-  {
     path: '/email',
     name: 'Email',
     component: Email
@@ -47,6 +42,11 @@ const routes = [
     component: login
   },
   {
+    path: '/testlogin',
+    name: 'TestLogin',
+    component: TestLogin
+  },
+  {
     path: '/resetpassword',
     name: 'Resetpassword',
     component: Resetpassword
@@ -55,6 +55,11 @@ const routes = [
     path: '/person',
     name: 'Person',
     component: Person
+  },
+  {
+    path: '/test',
+    name: 'test',
+    component: test
   },
 ]
 

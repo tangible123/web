@@ -32,6 +32,12 @@
             <el-button type="primary" icon @click="register()">注册账号</el-button>
           </el-form-item>
 
+           <el-steps :active="active" finish-status="success">
+           <el-step title="步骤 1"  description="身份绑定"></el-step>
+           <el-step title="步骤 2"  description="信息填写"></el-step>
+            <el-step title="步骤 3"  description="尝试登录"></el-step>
+           </el-steps>
+
         </el-form>
       </el-row>
     </div>
@@ -44,6 +50,8 @@ export default {
   name: "register",
   data() {
     return {
+       active: 1,
+        judge: false,
       user: {
         userNum: "",
         username: "",
@@ -60,6 +68,7 @@ export default {
   methods: {
    
     register() {
+      const _this = this
        if (!this.user.userNum) {
         this.$message.error("请输入学号！");
         return;
@@ -84,17 +93,35 @@ export default {
           axios
             .post("http://127.0.0.1:8088/index/register", this.user)
             .then(res => {
+              
               // console.log("输出response.data", res.data);
               // console.log("输出response.data.status", res.data.status);
-              if (res.data.status === 200) {
-                alert("您已成功注册账户,请尝试登录")
-                this.$router.push({ path: "/login"});
+              if (res.data.status === 10000) {
+
+                 this.$message({
+                message: '您已成功注册账户,请尝试登录',
+                 type: 'success'
+                   });
+
+                if (this.active++ > 2) this.active = 0;
+
+                 _this.$router.push({ 
+                       path:'/testlogin',
+                       name:'TestLogin', 
+                         //params传参 需要使用 name 否则取不到；对应路由配置的 name
+                      params: {
+                      judge:_this.user.judge,
+                     }})
+
+                this.$router.push({ path: "/testlogin" });
+
               } else {
-                alert("您输入的用户名已存在！");  // 改为动态查询
+                this.$message.error("您输入的用户名已存在！");  // 改为动态查询
               }
             });
         }
       }
+
     }
   }
 };

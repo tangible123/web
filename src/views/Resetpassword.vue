@@ -19,9 +19,9 @@
           </el-form-item>
          
            <el-steps :active="active" finish-status="success">
-           <el-step title="步骤 1"></el-step>
-           <el-step title="步骤 2"></el-step>
-           <el-step title="步骤 3"></el-step>
+           <el-step title="步骤 1"  description="身份验证"></el-step>
+           <el-step title="步骤 2" description="重置密码"></el-step>
+            <el-step title="步骤 3" description="尝试登录"></el-step>
            </el-steps>
 
 
@@ -51,20 +51,24 @@ export default {
   },
   methods: {
   changePassword() {
-     const _this = this
      if(!this.user.newPassWord) {
-         Vue.prototype.$methods.error("请输入新的密码! ");
+         this.$message.error("请输入新的密码! ")
          return ;
      }else if(!this.user.confirmPassword) {
-        Vue.prototype.$methods.error("请再次确认密码! ");
+       
+        this.$message.error("请再次确认密码! ")
         return ;
      }else if(this.user.newPassWord!=this.user.confirmPassword){
-        alert("请确认两次密码相同! ");
+       
+        this.$message.error("请确认两次密码相同! ")
         return ;
      }else {
         axios.post("http://127.0.0.1:8088/password/modified",this.user)
         .then(res=>{
-            alert("密码更改成功，请尝试下一步登录");
+            this.$message({
+          message: '密码更改成功，请尝试下一步登录',
+          type: 'success'
+        });
               if (this.active++ > 2) this.active = 0;
               this.$router.push({ path: "/testlogin" });
         })
