@@ -1,4 +1,5 @@
 <template>
+ <div id="app">
   <div class="login" clearfix>
     <div class="login-wrap">
       <el-row type="flex" justify="center">
@@ -8,25 +9,18 @@
           <hr>
   
            <el-form-item  prop="userNum" label="学号">
-            <el-input v-model="user.userNum" placeholder="请输入学号" prefix-icon></el-input>
+            <el-input v-model="user.userNum" placeholder="请输入学号/手机号/用户名" prefix-icon></el-input>
           </el-form-item>
 
 
           <el-form-item  prop="password" label="密码">
             <el-input v-model="user.password" show-password placeholder="请输入密码"></el-input>
           </el-form-item>
-    
-          <div @click="refreshCode" style="margin-top: 20px">
-         <!--验证码组件-->
-          <s-identify :identifyCode="identifyCode"></s-identify>
-          </div>
-       
+         
+        <el-switch v-model="value1" active-text="30天免登录" inactive-text="默认"> </el-switch>
 
-          <!--放置30天免登录-->
-          <el-radio v-model="radio" label="1">30天免登录</el-radio>
-          
           <br>
-          <router-link to="/email">找回密码</router-link>
+          <router-link to="/findpassword">找回密码</router-link>
           <router-link to="/registercode">注册账号</router-link>
 
           <el-form-item>
@@ -52,6 +46,7 @@
 
     </div>
   </div>
+ </div>
 </template>
  
 <script>
@@ -59,7 +54,9 @@ import axios from "axios";
 export default {
   name: "login",
   data() {
+    
     return {
+      value1: true,
        msg: '',
       text: '向右滑动->',
       outerVisible: false,
@@ -85,7 +82,9 @@ export default {
   created() {},
   methods: {
 
-
+     change() {
+        this.value1 = !this.value1
+     },
     doLogin() {
 
       if (!this.user.userNum) {
@@ -97,23 +96,31 @@ export default {
       } 
      this.outerVisible = true // 弹出 滑动框
 
-        //校验用户名和密码是否正确;
-        // this.$router.push({ path: "/personal" });
+      
     },
+    
+ 
      onSuccess() {
        axios
-          .post("http://127.0.0.1:8088/index/login/", this.user)
+          .post("http://127.0.0.1:8088/login/account/", this.user)
           .then(res => {
+    
+              const jwt = res.headers['authorization']
+            
+              // 把数据共享出去
+              _this.$store.commit("SET_TOKEN", jwt)
+            
+             console.log('验证通过')
+             this.msg = 'login success'
+             //滑动验证成功之后关闭弹出的窗口
+             this.outerVisible = false
+             this.$refs.slideblock.reset() 
              console.log("输出response.data.status", res.data.status);
-          
+              
               this.$router.push({ path: "/person" });
             
           });
-      console.log('验证通过')
-      this.msg = 'login success'
-      //滑动验证成功之后关闭弹出的窗口
-      this.outerVisible = false
-      this.$refs.slideblock.reset() 
+     
     },
     onFail() {
       console.log('验证不通过')
@@ -144,7 +151,7 @@ export default {
 .login {
   width: 100%;
   height: 740px;
-  background: url("../assets/1.jpg") no-repeat;
+  background: url("../assets/bg4.jpg") no-repeat;
   background-size: cover;
   overflow: hidden;
 }
@@ -156,6 +163,7 @@ export default {
   margin: 100px auto;
   overflow: hidden;
   padding-top: 10px;
+  opacity: 0.9;
   line-height: 20px;
 }
 #password {

@@ -36,14 +36,14 @@
          </el-tab-pane>
            </el-tabs>
 
-           <el-steps :active="active" finish-status="success">
+           <el-steps :active="active" align-center=true finish-status="success">
            <el-step title="步骤 1"  description="身份绑定"></el-step>
            <el-step title="步骤 2"  description="信息填写"></el-step>
             <el-step title="步骤 3"  description="尝试登录"></el-step>
            </el-steps>
           
           
-          <el-button style="margin-top: 12px;" @click="Verifycode" size="medium">确认</el-button>
+          <el-button style="margin-top: 12px;"  @click="Verifycode" size="medium">确认</el-button>
        
 
         </el-form>
@@ -126,7 +126,9 @@ export default {
         var reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
         if (!reg.test(this.user.email)) {
           this.$message.error("请检查邮箱填写是否正确！");
+          return ;
         } }
+      
          this.outerVisible = true // 弹出 滑动框
         this.isEmail = true
       },
@@ -136,13 +138,15 @@ export default {
        if(!this.user.phone||this.user.phone=="") {
        this.$message.error("请输入手机号! ");
         return ;
-      }
-      else {
+      }  else if (this.user.phone != null) {
+        var reg = /^1(?:3\d|4[4-9]|5[0-35-9]|6[67]|7[013-8]|8\d|9\d)\d{8}$/;
+        if (!reg.test(this.user.phone)) {
+          this.$message.error("请检查手机号填写是否正确！");
+          return ;
+        } } 
+      
         this.isPhone = true
         this.outerVisible = true // 弹出 滑动框
-
-       
-      }
    },
 
    Verifycode() {
@@ -155,6 +159,7 @@ export default {
 
       else {
         axios.post("http://127.0.0.1:8088/password/verifiedcode",{
+          phone: this.user.phone,
           email: this.user.email,
           code: this.user.code
         })
@@ -271,7 +276,7 @@ export default {
 .login {
   width: 100%;
   height: 740px;
-  background: url("../assets/1.jpg") no-repeat;
+  background: url("../assets/bg4.jpg") no-repeat;
   background-size: cover;
   overflow: hidden;
 }
@@ -284,6 +289,7 @@ export default {
   overflow: hidden;
   padding-top: 10px;
   line-height: 20px;
+  opacity: 0.9;
 }
  
 h3 {

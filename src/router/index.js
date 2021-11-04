@@ -4,10 +4,11 @@ import Person from '../views/Person.vue'
 import Resetpassword from '../views/Resetpassword.vue'
 import login from '../views/login.vue'
 import Register from '../views/Register.vue'
-import Email from '../views/Email.vue'
+import Findpassword from '../views/Findpassword.vue'
 import Registercode from '../views/Registercode.vue'
 import test from '../views/test.vue'
 import TestLogin from '../views/TestLogin.vue'
+
 
 Vue.use(VueRouter)
 
@@ -32,9 +33,9 @@ const routes = [
     component: Registercode
   },
   {
-    path: '/email',
-    name: 'Email',
-    component: Email
+    path: '/findpassword',
+    name: 'Findpassword',
+    component: Findpassword
   },
   {
     path: '/',
@@ -61,6 +62,7 @@ const routes = [
     name: 'test',
     component: test
   },
+  
 ]
 
 const router = new VueRouter({

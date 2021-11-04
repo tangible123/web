@@ -4,7 +4,7 @@
       <el-row type="flex" justify="center">
           
 
-        <el-form ref="loginForm" :model="user" status-icon label-width="80px">
+        <el-form ref="ruleForm" :model="user" status-icon label-width="80px">
           <h3>找回密码</h3>
           <hr>
           <el-tabs v-model="activeName" @tab-click="handleClick">
@@ -41,7 +41,7 @@
 
     </el-tabs>
         
-           <el-steps :active="active" finish-status="success">
+           <el-steps :active="active" align-center=true finish-status="success">
            <el-step title="步骤 1"  description="身份验证"></el-step>
            <el-step title="步骤 2" description="重置密码"></el-step>
             <el-step title="步骤 3" description="尝试登录"></el-step>
@@ -50,10 +50,6 @@
           
           <el-button style="margin-top: 12px;" @click="Verifycode" size="medium">确认</el-button>
        
-         
-          <!--引入子组件
-           <page-slide ref="child" @sendEventToParent="getValueFromChild"></page-slide>
-          -->
 
         </el-form>
       </el-row>
@@ -78,10 +74,11 @@
  
 <script>
 import axios from "axios";
-
-//import Slide from '../components/SIdentify';
 export default {
   name: "email",
+  
+
+
   data() {
     return {
       
@@ -146,11 +143,17 @@ export default {
        if(!this.user.phone||this.user.phone=="") {
        this.$message.error("请输入手机号! ");
         return ;
-      } // 加一层 手机号 格式检验
-      else {
+      } else if (this.user.phone != null) {
+        var reg = /^1(?:3\d|4[4-9]|5[0-35-9]|6[67]|7[013-8]|8\d|9\d)\d{8}$/;
+        if (!reg.test(this.user.phone)) {
+          this.$message.error("请检查手机号填写是否正确！");
+          return ;
+        } 
+        } 
+     
           this.isPhone = true  // 滑动验证后 发送的是 phone
           this.outerVisible = true // 弹出 滑动框
-      }
+      
    },
 
    Verifycode() {
@@ -164,6 +167,7 @@ export default {
       else {   // 先发送邮箱过去 在 后台从redis获取验证码
         axios.post("http://127.0.0.1:8088/password/verifiedcode",{
           email: this.user.email,
+          phone: this.user.phone,
           code: this.user.code
         })
           .then(res=>{
@@ -172,7 +176,7 @@ export default {
               return ;
             }
             if(res.data.status==10011) {  // 验证码错误
-              this.$message.error("输入验证码错误,请重新获取!")
+              this.$message.error("输入验证码错误!")
               return ;
             }
            if(res.data.status==10000) { // 验证码 相等
@@ -265,7 +269,7 @@ export default {
 .login {
   width: 100%;
   height: 740px;
-  background: url("../assets/1.jpg") no-repeat;
+  background: url("../assets/bg4.jpg") no-repeat;
   background-size: cover;
   overflow: hidden;
 }
@@ -278,6 +282,7 @@ export default {
   overflow: hidden;
   padding-top: 10px;
   line-height: 20px;
+   opacity: 0.9;
 }
  
 h3 {

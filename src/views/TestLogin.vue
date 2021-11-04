@@ -7,8 +7,8 @@
           <h3>测试登录</h3>
           <hr>
   
-           <el-form-item id="userNum" prop="userNum" label="学号">
-            <el-input v-model="user.userNum" placeholder="请输入学号" prefix-icon></el-input>
+           <el-form-item id="userNum" prop="userNum" label="学号手机">
+            <el-input v-model="user.userNum" placeholder="请输入学号/手机号" prefix-icon></el-input>
           </el-form-item>
 
           <span v-if="judge">
@@ -16,11 +16,13 @@
             <el-input v-model="user.password" show-password placeholder="请输入密码"></el-input>
           </el-form-item>
           </span>
+
            <span v-else>
              <el-form-item id="password" prop="password" label="密码">
             <el-input v-model="user.password" show-password placeholder="请输入密码"></el-input>
           </el-form-item>
            </span>
+           
 
           <el-form-item>
             <el-button type="primary" icon="el-icon-upload" @click="doLogin()">登 录</el-button>
@@ -34,7 +36,7 @@
            </el-steps>
            </span>
            <span v-else>
-             <el-steps :active="active" finish-status="success">
+             <el-steps :active="active" align-center=true finish-status="success">
            <el-step title="步骤 1"  description="身份绑定"></el-step>
            <el-step title="步骤 2"  description="信息填写"></el-step>
             <el-step title="步骤 3"  description="尝试登录"></el-step>
@@ -78,7 +80,7 @@ export default {
     doLogin() {
 
       if (!this.user.userNum) {
-        this.$message.error("请输入学号！");
+        this.$message.error("请输入学号/手机号！");
         return;
       } else if (!this.user.password) {
         this.$message.error("请输入密码！");
@@ -87,10 +89,14 @@ export default {
         //校验用户名和密码是否正确;
         // this.$router.push({ path: "/personal" });
         axios
-          .post("http://127.0.0.1:8088/index/login/", this.user)
+          .post("http://127.0.0.1:8088/login/account/", this.user)
           .then(res => {
-             console.log("输出response.data.status", res.data.status);
-          
+             
+              if(res.data.status==10006) {
+                this.$message.error("学号/手机错误或者密码错误!")
+                return ;
+              }
+              
               this.$router.push({ path: "/person" });
             
           });
@@ -106,7 +112,7 @@ export default {
 .login {
   width: 100%;
   height: 740px;
-  background: url("../assets/1.jpg") no-repeat;
+  background: url("../assets/bg4.jpg") no-repeat;
   background-size: cover;
   overflow: hidden;
 }
@@ -119,6 +125,7 @@ export default {
   overflow: hidden;
   padding-top: 10px;
   line-height: 20px;
+   opacity: 0.9;
 }
 #password {
   margin-bottom: 5px;

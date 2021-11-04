@@ -7,6 +7,12 @@ export default new Vuex.Store({
   state: {
   },
   mutations: {
+     // set
+     SET_TOKEN: (state, token) => {
+      state.token = token
+      localStorage.setItem("token", token)
+    },
+    
   },
   actions: {
   },

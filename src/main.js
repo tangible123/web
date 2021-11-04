@@ -8,7 +8,7 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import SlideVerify from 'vue-monoplasty-slide-verify';
 import 'normalize.css/normalize.css'
-
+import './element-variables.scss'
 Vue.config.productionTip = false
 Vue.use(VueAxios,axios)
 Vue.use(ElementUI)

@@ -18,7 +18,7 @@
             <el-button type="primary" icon @click="changePassword">重置密码</el-button>
           </el-form-item>
          
-           <el-steps :active="active" finish-status="success">
+           <el-steps :active="active" align-center=true finish-status="success">
            <el-step title="步骤 1"  description="身份验证"></el-step>
            <el-step title="步骤 2" description="重置密码"></el-step>
             <el-step title="步骤 3" description="尝试登录"></el-step>
@@ -87,7 +87,7 @@ export default {
 .login {
   width: 100%;
   height: 740px;
-  background: url("../assets/1.jpg") no-repeat;
+  background: url("../assets/bg4.jpg") no-repeat;
   background-size: cover;
   overflow: hidden;
 }
@@ -95,11 +95,12 @@ export default {
   background: url("../assets/3.jpg") no-repeat;
   background-size: cover;
   width: 500px;
-  height: 500px;
+  height: 450px;
   margin: 100px auto;
   overflow: hidden;
   padding-top: 10px;
   line-height: 20px;
+   opacity: 0.9;
 }
  
 h3 {
